@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <!-- 主色调-->
+    <color name="color_main">#6FBA2C</color>
+    <!-- 透明 -->
+    <color name="transparent">#0000</color>
+    <!-- 白 -->
+    <color name="white">#FFFFFFFF</color>
+    <!-- 背景 -->
+    <color name="gray_bg">#F7F7F7</color>
+    <!-- 全局TextView默认字体颜色 -->
+    <color name="default_text_color">#FF3D3D3D</color>
+    <!-- 輸入框字體色 -->
+    <color name="text_f7">#3D3D3D</color>
+    <!-- 灰色 -->
+    <color name="text_c1">#C1C1C1</color>
+    <!-- 深灰 -->
+    <color name="text_b3">#B3B3B3</color>
+    <!-- 灰色分隔线 -->
+    <color name="gray_line">#EDEDED</color>
+    <!-- 黄字体 -->
+    <color name="text_yellow">#6FBA2C</color>
+    <!-- 淡灰色 -->
+    <color name="text_gray_s">#AEAEAE</color>
+    <color name="colorPrimaryDarkTrans">#CCf57257</color>
+    <!-- 大红色 -->
+    <color name="red_b">#FF4F4F</color>
+</resources>
