@@ -17,11 +17,11 @@ public class WWToast {
 	/**
 	 * 短时间显示Toast
 	 * 
-	 * @param context
+
 	 * @param message
 	 */
-	public static void showShort(Context context, String message) {
-			Toast	toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
+	public static void showShort(String message) {
+			Toast	toast = Toast.makeText(MyApplication.getInstance(), message, Toast.LENGTH_SHORT);
 			 toast.setGravity(Gravity.CENTER, 0, 0);
 
 		toast.setText(message);
