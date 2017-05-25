@@ -39,6 +39,7 @@ public class ScanActivity extends FatherActivity implements QRCodeView.Delegate 
         super.onStart();
         mQRCodeView.startCamera();
         mQRCodeView.showScanRect();
+        mQRCodeView.startSpot();
     }
 
     @Override

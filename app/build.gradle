@@ -28,8 +28,8 @@ dependencies {
     testCompile 'junit:junit:4.12'
     // -------------------- 以下三个库是必须依赖的 ----------------------------
     compile 'com.google.zxing:core:3.2.1'
-    compile 'cn.bingoogolapple:bga-qrcodecore:1.1.6@aar'
-    compile 'cn.bingoogolapple:bga-zxing:1.1.6@aar'
+    compile 'cn.bingoogolapple:bga-qrcodecore:1.1.7@aar'
+    compile 'cn.bingoogolapple:bga-zxing:1.1.7@aar'
     // -------------------- 以上三个库是必须依赖的 ----------------------------
     compile 'org.xutils:xutils:3.3.38'
     compile 'com.alibaba:fastjson:1.2.18'

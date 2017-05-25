@@ -206,6 +206,7 @@ public class MainActivity extends FatherActivity {
             if (requestCode == 888) {
                 //扫描结果
                 String s = data.getStringExtra("codedContent");
+                tvResult.setText(s);
                 sendOpenQr(s);
 
             } else if (requestCode == 999) {
@@ -241,6 +242,7 @@ public class MainActivity extends FatherActivity {
             public void onAfterSuccessOk(JSONObject data) {
                 taskId = data.getString("taskId");
                 openMac = data.getString("Data");
+                tvResult.setText(openMac);
                 ClientManager.getClient().registerConnectStatusListener(openMac, mConnectStatusListener);
                 connectDeviceIfNeeded();
             }
