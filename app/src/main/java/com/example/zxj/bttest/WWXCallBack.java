@@ -21,20 +21,11 @@ public abstract class WWXCallBack implements CommonCallback<String> {
 	public static final String RESULT = "Result";
 	/** 业务的数据字段 */
 	private String modeKey;
-	/** 不需要错误提示 */
-	private boolean unUsePublicToast;
-
 
 	public WWXCallBack(String modeKey) {
 		super();
 		this.modeKey = modeKey;
 	}
-	public WWXCallBack(String modeKey, boolean unUsePublicToast) {
-		super();
-		this.modeKey = modeKey;
-		this.unUsePublicToast = unUsePublicToast;
-	}
-
 	@Override
 	public void onCancelled(CancelledException arg0) {
 	}

@@ -74,7 +74,6 @@ public class MainActivity extends FatherActivity {
                 }
             }
         });
-
     }
 
     @Override
@@ -240,6 +239,7 @@ public class MainActivity extends FatherActivity {
         x.http().post(params, new WWXCallBack("OpenSend") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
+                ZLog.showPost(data.toString());
                 taskId = data.getString("taskId");
                 openMac = data.getString("Data");
                 tvResult.setText(openMac);
