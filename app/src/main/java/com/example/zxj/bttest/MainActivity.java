@@ -101,10 +101,10 @@ public class MainActivity extends FatherActivity {
             public void onResponse(int code, BleGattProfile profile) {
                 dismissWaitDialog();
                 if (code == REQUEST_SUCCESS) {
-                    ClientManager.getClient().notify(openMac, UUID.fromString(Api.SERVICE_UUID),  UUID.fromString(Api.CHARACTERISTIC_UUID), new BleNotifyResponse() {
+                    ClientManager.getClient().notify(openMac, UUID.fromString(Api.SERVICE_UUID), UUID.fromString(Api.CHARACTERISTIC_UUID), new BleNotifyResponse() {
                         @Override
                         public void onNotify(UUID service, UUID character, byte[] value) {
-                        //如果接受到关锁信息，发送给服务器
+                            //如果接受到关锁信息，发送给服务器
                             closeDevice(value);
                         }
 
@@ -136,8 +136,6 @@ public class MainActivity extends FatherActivity {
             }
         });
     }
-
-
 
 
     private boolean mConnected;
@@ -203,7 +201,7 @@ public class MainActivity extends FatherActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null) {
             if (requestCode == 888) {
-                //扫描结果
+                //扫描结果 http://www.wangwangsh.cn/mobile/ysbike.html?d=00000000_0
                 String s = data.getStringExtra("codedContent");
                 tvResult.setText(s);
                 sendOpenQr(s);
@@ -222,6 +220,14 @@ public class MainActivity extends FatherActivity {
         }
     }
 
+    public static RequestParams getPostJsonParams(JSONObject jsonObject,
+                                                  String url) {
+        RequestParams params = new RequestParams(url);
+        params.setAsJsonContent(true);
+        params.setBodyContent(jsonObject.toString());
+        return params;
+    }
+
     /**
      * 发送开锁扫码数据
      *
@@ -234,9 +240,9 @@ public class MainActivity extends FatherActivity {
     private void sendOpenQr(String scanData) {
         this.scanData = scanData;
         showWaitDialog();
-        RequestParams params = new RequestParams(Api.OpenSend());
-        params.addBodyParameter("scanData", scanData);
-        x.http().post(params, new WWXCallBack("OpenSend") {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("scanData", scanData);
+        x.http().post(getPostJsonParams(jsonObject, Api.OpenSend()), new WWXCallBack("OpenSend") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
                 ZLog.showPost(data.toString());
@@ -262,12 +268,13 @@ public class MainActivity extends FatherActivity {
      */
     private void sendOpenData(String scanData, String taskId) {
         showWaitDialog();
-        RequestParams params = new RequestParams(Api.OpenReveice());
-        params.addBodyParameter("scanData", scanData);
-        params.addBodyParameter("taskId", taskId);
-        x.http().post(params, new WWXCallBack("OpenReveice") {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("scanData", scanData);
+        jsonObject.put("taskId", taskId);
+        x.http().post(getPostJsonParams(jsonObject, Api.OpenReveice()), new WWXCallBack("OpenReveice") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
+                tvResult.setText("开锁成功");
                 WWToast.showShort("开锁成功");
             }
 
@@ -286,15 +293,18 @@ public class MainActivity extends FatherActivity {
      */
     private void sendInitQr(final String scanData) {
         showWaitDialog();
-        RequestParams params = new RequestParams(Api.InitSend());
-        params.addBodyParameter("scanData", scanData);
-        x.http().post(params, new WWXCallBack("InitSend") {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("scanData", scanData);
+        x.http().post(getPostJsonParams(jsonObject, Api.InitSend()), new WWXCallBack("InitSend") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
-                final String taskId = data.getString("taskId");
+                Device device = JSONObject.parseObject(data.getString("Data"), Device.class);
+
+
+                final String taskId = data.getString("TaskId");
                 ClientManager.getClient().writeNoRsp(deviceSelect.getAddress(),
                         UUID.fromString(Api.SERVICE_UUID),
-                        UUID.fromString(Api.CHARACTERISTIC_UUID), ByteUtils.stringToBytes(data.getString("Data")), new BleWriteResponse() {
+                        UUID.fromString(Api.CHARACTERISTIC_UUID), ByteUtils.stringToBytes(device.CommandText), new BleWriteResponse() {
                             @Override
                             public void onResponse(int code) {
                                 if (code == REQUEST_SUCCESS) {
@@ -324,13 +334,16 @@ public class MainActivity extends FatherActivity {
      */
     private void sendInitData(String scanData, String taskId, String address) {
         showWaitDialog();
-        RequestParams params = new RequestParams(Api.InitReveice());
-        params.addBodyParameter("scanData", scanData);
-        params.addBodyParameter("taskId", taskId);
-        params.addBodyParameter("bluetooth", address);
-        x.http().post(params, new WWXCallBack("InitReveice") {
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("scanData", scanData);
+        jsonObject.put("taskId", taskId);
+        jsonObject.put("bluetooth", address);
+        x.http().post(getPostJsonParams(jsonObject, Api.InitReveice()), new WWXCallBack("InitReveice") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
+
+                tvResult.setText("设备初始化成功");
                 WWToast.showShort("设备初始化成功");
             }
 
@@ -340,15 +353,18 @@ public class MainActivity extends FatherActivity {
             }
         });
     }
+
     /**
      * 关锁指令
+     *
      * @param value
      */
     private void closeDevice(byte[] value) {
         showWaitDialog();
-        RequestParams params = new RequestParams(Api.LockReveice());
-        params.addBodyParameter("receiveData",ByteUtils.byteToString(value));
-        x.http().post(params, new WWXCallBack("LockReveice") {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("receiveData", ByteUtils.byteToString(value));
+
+        x.http().post(getPostJsonParams(jsonObject, Api.LockReveice()), new WWXCallBack("LockReveice") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
                 WWToast.showShort("关锁成功");

@@ -62,6 +62,7 @@ public class ScanActivity extends FatherActivity implements QRCodeView.Delegate 
     @Override
     public void onScanQRCodeSuccess(String result) {
         if (!TextUtils.isEmpty(result)) {
+            ZLog.showPost(result);
             Intent intent = getIntent();
             intent.putExtra("codedContent", result);
             setResult(RESULT_OK, intent);
