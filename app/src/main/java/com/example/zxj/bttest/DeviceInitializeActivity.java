@@ -2,45 +2,23 @@ package com.example.zxj.bttest;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.view.View;
 
-import com.alibaba.fastjson.JSON;
-import com.github.library.BaseRecyclerAdapter;
-import com.github.library.BaseViewHolder;
-import com.github.library.listener.OnRecyclerItemClickListener;
-import com.inuker.bluetooth.library.beacon.Beacon;
-import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
-import com.inuker.bluetooth.library.connect.options.BleConnectOptions;
-import com.inuker.bluetooth.library.connect.response.BleConnectResponse;
-import com.inuker.bluetooth.library.model.BleGattProfile;
-import com.inuker.bluetooth.library.search.SearchRequest;
-import com.inuker.bluetooth.library.search.SearchResult;
-import com.inuker.bluetooth.library.search.response.SearchResponse;
-import com.inuker.bluetooth.library.utils.BluetoothLog;
+import com.alibaba.fastjson.JSONObject;
 
-import java.util.ArrayList;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.inuker.bluetooth.library.Constants.REQUEST_SUCCESS;
-import static com.inuker.bluetooth.library.Constants.STATUS_CONNECTED;
 
 /**
  * Created by ZXJ on 2017/5/23.
- * 设备列表
+ *     //确保存在链接-->扫码-->请求初始化数据发送给设备-->将初始化结果给后台-->初始化结果展示
  */
 
 public class DeviceInitializeActivity extends FatherActivity {
 
-    @BindView(R.id.lv_data)
-    android.support.v7.widget.RecyclerView lvData;
-    private ArrayList<SearchResult> list = new ArrayList<SearchResult>();
-    private BaseRecyclerAdapter mAdapter;
-    private SearchResult deviceSelect;
-    private boolean mConnected;
+    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     @Override
     protected int getLayoutId() {
         return R.layout.act_device_init;
@@ -53,140 +31,106 @@ public class DeviceInitializeActivity extends FatherActivity {
 
     @Override
     protected void initView() {
-        mAdapter = new BaseRecyclerAdapter<SearchResult>(this, list, R.layout.device_list_item) {
-            @Override
-            protected void convert(BaseViewHolder helper, SearchResult item) {
-                helper.setText(R.id.name, item.getName());
-                helper.setText(R.id.mac, item.getAddress());
-                helper.setText(R.id.rssi, String.format("Rssi: %d", item.rssi));
-                Beacon beacon = new Beacon(item.scanRecord);
-                helper.setText(R.id.adv, beacon.toString());
 
-            }
-        };
-        mAdapter.setOnRecyclerItemClickListener(new OnRecyclerItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                 deviceSelect = (SearchResult) mAdapter.getItem(position);
-                ClientManager.getClient().registerConnectStatusListener(deviceSelect.getAddress(), mConnectStatusListener);
-                connectDeviceIfNeeded();
-            }
-        });
-        lvData.setHasFixedSize(true);
-        lvData.setLayoutManager(new LinearLayoutManager(this));
-        lvData.setItemAnimator(new DefaultItemAnimator());
-        mAdapter.openLoadAnimation(false);
-        lvData.setAdapter(mAdapter);
-        initTextHeadRigth("刷新", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchDevice();
-            }
-        });
-        searchDevice();
+
     }
 
     @Override
     protected void doOperate() {
-
-    }
-    private void searchDevice() {
-        SearchRequest request = new SearchRequest.Builder()
-                .searchBluetoothLeDevice(5000, 2).build();
-//  .searchBluetoothClassicDevice(5000) // 再扫经典蓝牙5s
-        ClientManager.getClient().search(request, mSearchResponse);
+        Intent intent1 = new Intent();
+        intent1.setClass(this, DeviceInitializeActivity.class);
+        startActivityForResult(intent1, 999);
     }
 
-    private final SearchResponse mSearchResponse = new SearchResponse() {
-        @Override
-        public void onSearchStarted() {
-           showWaitDialog();
-            list.clear();
-        }
 
-        @Override
-        public void onDeviceFounded(SearchResult device) {
-//            BluetoothLog.w("MainActivity.onDeviceFounded " + device.device.getAddress());
-            if (!list.contains(device)) {
-                dismissWaitDialog();
-                list.add(device);
-                mAdapter.setData(list);
-            }
-
-        }
-
-        @Override
-        public void onSearchStopped() {
-
-        }
-
-        @Override
-        public void onSearchCanceled() {
-
-        }
-    };
 
     @Override
     protected void onPause() {
         super.onPause();
-        ClientManager.getClient().stopSearch();
-    }
-    private void connectDevice() {
-        showWaitDialog();
-        BleConnectOptions options = new BleConnectOptions.Builder()
-                .setConnectRetry(3)
-                .setConnectTimeout(20000)
-                .setServiceDiscoverRetry(3)
-                .setServiceDiscoverTimeout(10000)
-                .build();
 
-        ClientManager.getClient().connect(deviceSelect.getAddress(), options, new BleConnectResponse() {
-            @Override
-            public void onResponse(int code, BleGattProfile profile) {
-             dismissWaitDialog();
-                if (code == REQUEST_SUCCESS) {
-                    //链接成功
-                    WWToast.showShort("链接成功");
-                    Intent intent=new Intent();
-                    intent.putExtra("data", deviceSelect);
-                    setResult(RESULT_OK,intent);
-                    finish();
-                }else{
-                    //链接失败
-                    WWToast.showShort("链接失败");
-                }
-            }
-        });
     }
-    private final BleConnectStatusListener mConnectStatusListener = new BleConnectStatusListener() {
-        @Override
-        public void onConnectStatusChanged(String mac, int status) {
-            BluetoothLog.v(String.format("DeviceDetailActivity onConnectStatusChanged %d in %s",
-                    status, Thread.currentThread().getName()));
 
-            mConnected = (status == STATUS_CONNECTED);
-            connectDeviceIfNeeded();
-        }
-    };
-    private void connectDeviceIfNeeded() {
-        if (!mConnected) {
-            connectDevice();
-        }
-    }
+
 
     @Override
     protected void onDestroy() {
-        if(mConnected){
-            ClientManager.getClient().disconnect(deviceSelect.getAddress());
-        }
 
-        ClientManager.getClient().unregisterConnectStatusListener(deviceSelect.getAddress(), mConnectStatusListener);
         super.onDestroy();
     }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // TODO: add setContentView(...) invocation
-        ButterKnife.bind(this);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data != null) {
+            if (requestCode == 999) {
+                Intent intent = new Intent();
+                intent.setClass(this, ScanActivity.class);
+                startActivityForResult(intent, 666);
+            } else if (requestCode == 666) {
+                //扫描结果
+                String s = data.getStringExtra("codedContent");
+                sendInitQr(s);
+            }
+        }
+    }
+    public static RequestParams getPostJsonParams(JSONObject jsonObject,
+                                                  String url) {
+        RequestParams params = new RequestParams(url);
+        params.setAsJsonContent(true);
+        params.setBodyContent(jsonObject.toString());
+        return params;
+    }
+
+    /**
+     * 发送初始化扫码数据
+     *
+     * @param scanData
+     */
+    private void sendInitQr(final String scanData) {
+        showWaitDialog();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("scanData", scanData);
+        x.http().post(getPostJsonParams(jsonObject, Api.InitSend()), new WWXCallBack("InitSend") {
+            @Override
+            public void onAfterSuccessOk(JSONObject data) {
+                Device device = JSONObject.parseObject(data.getString("Data"), Device.class);
+
+
+                final String taskId = data.getString("TaskId");
+
+            }
+
+            @Override
+            public void onAfterFinished() {
+                dismissWaitDialog();
+            }
+        });
+    }
+
+    /**
+     * 发送初始化数据
+     *
+     * @param scanData
+     * @param taskId
+     * @param address
+     */
+    private void sendInitData(String scanData, String taskId, String address) {
+        showWaitDialog();
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("scanData", scanData);
+        jsonObject.put("taskId", taskId);
+        jsonObject.put("bluetooth", address);
+        x.http().post(getPostJsonParams(jsonObject, Api.InitReveice()), new WWXCallBack("InitReveice") {
+            @Override
+            public void onAfterSuccessOk(JSONObject data) {
+                WWToast.showShort("设备初始化成功");
+            }
+
+            @Override
+            public void onAfterFinished() {
+                dismissWaitDialog();
+            }
+        });
     }
 }

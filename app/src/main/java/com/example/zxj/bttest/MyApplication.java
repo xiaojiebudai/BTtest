@@ -23,7 +23,5 @@ public class MyApplication extends Application {
         instance = this;
         x.Ext.init(this);
         x.Ext.setDebug(true);
-        BluetoothContext.set(this);
-
     }
 }

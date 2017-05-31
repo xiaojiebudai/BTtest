@@ -9,8 +9,7 @@ public class Api {
      * 主机地址
      */
     public static final String ONLINE = "http://api.jsh88.net/Block/Json/";
-    public static final String SERVICE_UUID = "00001111-0000-1000-8000-00805f9b34fb";
-    public static final String CHARACTERISTIC_UUID = "00002222-0000-1000-8000-00805f9b34fb";
+
 
     /**
      * 取初始化发送指令
