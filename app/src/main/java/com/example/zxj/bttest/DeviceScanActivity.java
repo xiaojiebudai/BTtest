@@ -51,7 +51,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.example.jdy_ble.DeviceListAdapter;
+
 import java.util.Timer;
 
 //import com.example.jdy_type.Get_type;
@@ -82,8 +82,13 @@ public  class DeviceScanActivity extends Activity implements OnClickListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.jdy_activity_main);
-        
-        this.setTitle("JDY-LED-V1.2");
+
+		findViewById(R.id.rl_head_left).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
 
         
         // Use this check to determine whether BLE is supported on the device.  Then you can

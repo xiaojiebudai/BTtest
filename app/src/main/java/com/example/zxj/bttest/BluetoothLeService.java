@@ -102,6 +102,14 @@ public class BluetoothLeService extends Service {
             }
 
         }
+
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            if(UUID.fromString(BluetoothLeService.Characteristic_uuid_TX).equals(characteristic.getUuid())) {
+                BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE", characteristic);
+            } else if(UUID.fromString(BluetoothLeService.Characteristic_uuid_FUNCTION).equals(characteristic.getUuid())) {
+                BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE1", characteristic);
+            }
+        }
     };
     private final IBinder mBinder = new BluetoothLeService.LocalBinder();
 

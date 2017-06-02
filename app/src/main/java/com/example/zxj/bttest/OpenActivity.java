@@ -6,7 +6,7 @@ import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 
 import com.alibaba.fastjson.JSONObject;
-import com.inuker.bluetooth.library.utils.ByteUtils;
+
 
 import org.xutils.http.RequestParams;
 import org.xutils.x;
@@ -129,7 +129,7 @@ public class OpenActivity extends FatherActivity {
     private void closeDevice(byte[] value) {
         showWaitDialog();
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("receiveData", ByteUtils.byteToString(value));
+        jsonObject.put("receiveData", String.valueOf(value));
 
         x.http().post(getPostJsonParams(jsonObject, Api.LockReveice()), new WWXCallBack("LockReveice") {
             @Override

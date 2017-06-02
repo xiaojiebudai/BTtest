@@ -2,7 +2,7 @@ package com.example.zxj.bttest;
 
 import android.app.Application;
 
-import com.inuker.bluetooth.library.BluetoothContext;
+
 
 import org.xutils.x;
 
