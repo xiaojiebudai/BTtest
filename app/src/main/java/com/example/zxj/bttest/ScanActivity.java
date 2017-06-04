@@ -20,7 +20,7 @@ public class ScanActivity extends FatherActivity implements QRCodeView.Delegate 
 
     @Override
     protected void initValues() {
-        initDefautHead("扫码开锁", true);
+        initDefautHead("扫码", true);
     }
 
     @Override

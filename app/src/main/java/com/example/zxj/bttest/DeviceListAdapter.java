@@ -1,8 +1,4 @@
 package com.example.zxj.bttest;
-
-/**
- * Created by ZXJ on 2017/5/31.
- */
 //
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by Fernflower decompiler)
@@ -10,6 +6,7 @@ package com.example.zxj.bttest;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.Handler;
@@ -20,11 +17,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -63,7 +58,7 @@ public class DeviceListAdapter extends Activity {
             DeviceListAdapter.this.handler.sendMessage(message);
         }
     };
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+    private LeScanCallback mLeScanCallback = new LeScanCallback() {
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
             ++DeviceListAdapter.this.scan_int;
             if(DeviceListAdapter.this.scan_int > 1) {
@@ -140,30 +135,6 @@ public class DeviceListAdapter extends Activity {
 
     public int get_count() {
         return this.list_cell_0.getCount();
-    }
-
-    public String get_iBeacon_uuid(int pos) {
-        return this.list_cell_0.get_ibeacon_uuid(pos);
-    }
-
-    public String get_ibeacon_major(int pos) {
-        return this.list_cell_0.get_ibeacon_major(pos);
-    }
-
-    public String get_ibeacon_minor(int pos) {
-        return this.list_cell_0.get_ibeacon_minor(pos);
-    }
-
-    public String get_sensor_temp(int pos) {
-        return this.list_cell_0.get_sensor_temp(pos);
-    }
-
-    public String get_sensor_humid(int pos) {
-        return this.list_cell_0.get_sensor_humid(pos);
-    }
-
-    public String get_sensor_batt(int pos) {
-        return this.list_cell_0.get_sensor_batt(pos);
     }
 
     public byte get_vid(int pos) {
@@ -299,14 +270,13 @@ public class DeviceListAdapter extends Activity {
                 String tp;
                 String tp1;
                 if(type_0 == JDY_type.JDY) {
-                    convertView = LayoutInflater.from(DeviceListAdapter.this.context).inflate(R.layout.listitem_switch, (ViewGroup)null);
+                    convertView = LayoutInflater.from(DeviceListAdapter.this.context).inflate(R.layout.device_list_item, (ViewGroup)null);
                     this.viewHolder = DeviceListAdapter.this.new ViewHolder();
-                    this.viewHolder.tv_devName = (TextView)convertView.findViewById(R.id.switch_name);
-                    this.viewHolder.tv_devAddress = (TextView)convertView.findViewById(R.id.switch_mac);
-                    this.viewHolder.device_rssi = (TextView)convertView.findViewById(R.id.switch_rssi);
-                    this.viewHolder.type0 = (TextView)convertView.findViewById(R.id.switch_type113);
+                    this.viewHolder.tv_devName = (TextView)convertView.findViewById(R.id.name);
+                    this.viewHolder.tv_devAddress = (TextView)convertView.findViewById(R.id.mac);
+                    this.viewHolder.device_rssi = (TextView)convertView.findViewById(R.id.rssi);
                     convertView.setTag(this.viewHolder);
-                   DeviceListAdapter.this.list_select_index = 1;
+                    DeviceListAdapter.this.list_select_index = 1;
                     device = (BluetoothDevice)this.dev_ble.get(position);
                     tp = device.getName();
                     tp = "Name:" + tp;
@@ -326,85 +296,15 @@ public class DeviceListAdapter extends Activity {
                         this.viewHolder.device_rssi.setText(rssi_00);
                     }
 
-                    String tp2 = null;
-                    tp2 = "Type:标准模式";
-                    if(this.viewHolder.type0 != null) {
-                        this.viewHolder.type0.setText(tp2);
-                    }
-
-                    if(this.viewHolder.scan_data != null) {
-                        this.viewHolder.scan_data.setText("scanRecord:" + this.bytesToHexString1((byte[])this.dev_scan_data.get(position)));
-                    }
                 }
+
                 return convertView;
             } else {
                 return null;
             }
         }
 
-        public String get_ibeacon_uuid(int pos) {
-            String uuid = null;
-            new HashMap();
-            byte[] byte1000 = (byte[])this.dev_scan_data.get(pos);
-            if(byte1000.length < 32) {
-                return null;
-            } else {
-                byte[] proximityUuidBytes = new byte[16];
-                System.arraycopy(byte1000, 9, proximityUuidBytes, 0, 16);
-                String Beacon_UUID = this.bytesToHexString(proximityUuidBytes);
-                String uuid_8 = Beacon_UUID.substring(0, 8);
-                String uuid_4 = Beacon_UUID.substring(8, 12);
-                String uuid_44 = Beacon_UUID.substring(12, 16);
-                String uuid_444 = Beacon_UUID.substring(16, 20);
-                String uuid_12 = Beacon_UUID.substring(20, 32);
-                uuid = uuid_8 + "-" + uuid_4 + "-" + uuid_44 + "-" + uuid_444 + "-" + uuid_12;
-                return uuid;
-            }
-        }
 
-        public String get_ibeacon_major(int pos) {
-            String major = null;
-            byte[] byte1000 = (byte[])this.dev_scan_data.get(pos);
-            if(byte1000.length < 60) {
-                return null;
-            } else {
-                byte[] result = new byte[]{0, 0, byte1000[25], byte1000[26]};
-                int ii100 = this.byteArrayToInt1(result);
-                major = String.valueOf(ii100);
-                return major;
-            }
-        }
-
-        public String get_ibeacon_minor(int pos) {
-            String major = null;
-            byte[] byte1000 = (byte[])this.dev_scan_data.get(pos);
-            if(byte1000.length < 60) {
-                return null;
-            } else {
-                byte[] result = new byte[]{0, 0, byte1000[27], byte1000[28]};
-                int ii100 = this.byteArrayToInt1(result);
-                major = String.valueOf(ii100);
-                return major;
-            }
-        }
-
-        public String get_sensor_temp(int pos) {
-            byte[] byte1000 = (byte[])this.dev_scan_data.get(pos);
-            byte[] result = new byte[]{byte1000[58]};
-            return this.bytesToHexString(result);
-        }
-
-        public String get_sensor_humid(int pos) {
-            byte[] byte1000 = (byte[])this.dev_scan_data.get(pos);
-            byte[] result = new byte[]{byte1000[59]};
-            return this.bytesToHexString(result);
-        }
-
-        public String get_sensor_batt(int pos) {
-            byte[] byte1000 = (byte[])this.dev_scan_data.get(pos);
-            byte[] result = new byte[]{byte1000[60]};
-            return this.bytesToHexString(result);
-        }
 
         public int get_vid(int pos) {
             Object vid = null;
@@ -463,35 +363,6 @@ public class DeviceListAdapter extends Activity {
         TextView tv_devName;
         TextView tv_devAddress;
         TextView device_rssi;
-        TextView type0;
-        TextView scan_data;
-        TextView ibeacon_name;
-        TextView ibeacon_mac;
-        TextView ibeacon_uuid;
-        TextView ibeacon_major;
-        TextView ibeacon_minor;
-        TextView ibeacon_rssi;
-        TextView sensor_name;
-        TextView sensor_mac;
-        TextView sensor_rssi;
-        TextView sensor_type0;
-        TextView sensor_temp;
-        TextView sensor_humid;
-        TextView sensor_batt;
-        TextView switch_name;
-        TextView switch_mac;
-        TextView switch_rssi;
-        TextView switch_type113;
-        ImageView type_imageView2;
-        TextView massager_name;
-        TextView massager_mac;
-        TextView massager_rssi;
-        TextView massager_type113;
-        TextView led_name;
-        TextView led_mac;
-        TextView led_rssi;
-        TextView led_type113;
-
         ViewHolder() {
         }
     }

@@ -40,57 +40,48 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
-
-
-import java.util.Timer;
 
 //import com.example.jdy_type.Get_type;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
- *
- *
+ * <p>
+ * <p>
  * 扫描并筛选支持设备
  */
-public  class DeviceScanActivity extends Activity implements OnClickListener
-{
-   // private LeDeviceListAdapter mLeDeviceListAdapter;
+public class DeviceScanActivity extends FatherActivity implements OnClickListener {
+    // private LeDeviceListAdapter mLeDeviceListAdapter;
 //	Get_type mGet_type;
     private BluetoothAdapter mBluetoothAdapter;
-    private boolean mScanning;
 
-    
+
     private DeviceListAdapter mDevListAdapter;
 
-	ListView lv_bleList;
-	
-	
-	byte dev_bid ;
-	
-	Timer timer;
+    ListView lv_bleList;
+
+
+    byte dev_bid;
+
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.jdy_activity_main);
+    protected int getLayoutId() {
+        return R.layout.jdy_activity_main;
+    }
 
-		findViewById(R.id.rl_head_left).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
+    @Override
+    protected void initValues() {
+        initDefautHead("扫描设备", true);
+    }
 
-        
+    @Override
+    protected void initView() {
+
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -107,85 +98,96 @@ public  class DeviceScanActivity extends Activity implements OnClickListener
             finish();
             return;
         }
-        // 如果本地蓝牙没有开启，则开启  
-        if (!mBluetoothAdapter.isEnabled()) 
-        {
-            // 我们通过startActivityForResult()方法发起的Intent将会在onActivityResult()回调方法中获取用户的选择，比如用户单击了Yes开启，  
-            // 那么将会收到RESULT_OK的结果，  
-            // 如果RESULT_CANCELED则代表用户不愿意开启蓝牙  
-            Intent mIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);  
-            startActivityForResult(mIntent, 1);  
-            // 用enable()方法来开启，无需询问用户(实惠无声息的开启蓝牙设备),这时就需要用到android.permission.BLUETOOTH_ADMIN权限。  
-            // mBluetoothAdapter.enable();  
-            // mBluetoothAdapter.disable();//关闭蓝牙  
+        // 如果本地蓝牙没有开启，则开启
+        if (!mBluetoothAdapter.isEnabled()) {
+            // 我们通过startActivityForResult()方法发起的Intent将会在onActivityResult()回调方法中获取用户的选择，比如用户单击了Yes开启，
+            // 那么将会收到RESULT_OK的结果，
+            // 如果RESULT_CANCELED则代表用户不愿意开启蓝牙
+            Intent mIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(mIntent, 1);
+            // 用enable()方法来开启，无需询问用户(实惠无声息的开启蓝牙设备),这时就需要用到android.permission.BLUETOOTH_ADMIN权限。
+            // mBluetoothAdapter.enable();
+            // mBluetoothAdapter.disable();//关闭蓝牙
         }
-        
-        
+
+
         lv_bleList = (ListView) findViewById(R.id.lv_bleList);
-        
 
-		mDevListAdapter = new DeviceListAdapter( mBluetoothAdapter,DeviceScanActivity.this );
-		dev_bid = (byte)0x88;//88 是JDY厂家VID码
-		mDevListAdapter.set_vid( dev_bid );//用于识别自家的VID相同的设备，只有模块的VID与APP的VID相同才会被搜索得到
-		lv_bleList.setAdapter( mDevListAdapter.init_adapter( ) );
 
-		
-		lv_bleList.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				if (mDevListAdapter.get_count() > 0) 
-				{
-					
-					
-					Byte vid_byte =  mDevListAdapter.get_vid( position );//返回136表示是JDY厂家模块
-					//String vid_str =String.format("%02x", vid_byte );
-					//Toast.makeText( DeviceScanActivity.this,"设备VID:"+vid_str, Toast.LENGTH_SHORT).show();
-//				    Toast.makeText( DeviceScanActivity.this, "type:"+mDevListAdapter.get_item_type(position), Toast.LENGTH_SHORT).show(); 
-					
-					if( vid_byte==dev_bid )//JDY厂家VID为0X88， 用户的APP不想搜索到其它厂家的JDY-08模块的话，可以设备一下 APP的VID，此时模块也需要设置，
-						                      //模块的VID与厂家APP的VID要一样，APP才可以搜索得到模块VID与APP一样的设备
-					{
-						BluetoothDevice device1 = mDevListAdapter.get_item_dev(position);
-						if (device1 == null) return;
-						Intent intent1 = new Intent(DeviceScanActivity.this, jdy_Activity.class);
-						intent1.putExtra(jdy_Activity.EXTRAS_DEVICE_NAME, device1.getName());
-						intent1.putExtra(jdy_Activity.EXTRAS_DEVICE_ADDRESS, device1.getAddress());
-						// if (mScanning)
-						{
+        mDevListAdapter = new DeviceListAdapter(mBluetoothAdapter, DeviceScanActivity.this);
+        dev_bid = (byte) 0x88;//88 是JDY厂家VID码
+        mDevListAdapter.set_vid(dev_bid);//用于识别自家的VID相同的设备，只有模块的VID与APP的VID相同才会被搜索得到
+        lv_bleList.setAdapter(mDevListAdapter.init_adapter());
 
-							mDevListAdapter.scan_jdy_ble(false);
-							mScanning = false;
-						}
-						startActivity(intent1);
 
-					}
-					
-					
-				}
-			}
-		});
+        lv_bleList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                if (mDevListAdapter.get_count() > 0) {
+
+
+                    Byte vid_byte = mDevListAdapter.get_vid(position);//返回136表示是JDY厂家模块
+                    //String vid_str =String.format("%02x", vid_byte );
+                    //Toast.makeText( DeviceScanActivity.this,"设备VID:"+vid_str, Toast.LENGTH_SHORT).show();
+//				    Toast.makeText( DeviceScanActivity.this, "type:"+mDevListAdapter.get_item_type(position), Toast.LENGTH_SHORT).show();
+
+                    if (vid_byte == dev_bid)//JDY厂家VID为0X88， 用户的APP不想搜索到其它厂家的JDY-08模块的话，可以设备一下 APP的VID，此时模块也需要设置，
+                        //模块的VID与厂家APP的VID要一样，APP才可以搜索得到模块VID与APP一样的设备
+                        switch (mDevListAdapter.get_item_type(position)) {
+                            case JDY:////为标准透传模块
+                            {
+                                BluetoothDevice device1 = mDevListAdapter.get_item_dev(position);
+                                if (device1 == null) return;
+                                Intent intent1 = new Intent(DeviceScanActivity.this, DeviceInitializeActivity.class);
+                                ;
+                                intent1.putExtra(jdy_Activity.EXTRAS_DEVICE_NAME, device1.getName());
+                                intent1.putExtra(jdy_Activity.EXTRAS_DEVICE_ADDRESS, device1.getAddress());
+                                mDevListAdapter.scan_jdy_ble(false);
+                                startActivity(intent1);
+                                break;
+                            }
+
+                            default:
+                                break;
+                        }
+
+
+                }
+            }
+        });
+        initTextHeadRigth("扫描", new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDevListAdapter.scan_jdy_ble(true);
+            }
+        });
     }
-    
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case 0:
-			break;
 
-		}
-	}
-	
+    @Override
+    protected void doOperate() {
 
-	@Override
-	protected void onResume() {//打开APP时扫描设备
-		super.onResume();
-		mDevListAdapter.scan_jdy_ble( true );
-	}
+    }
 
-	@Override
-	protected void onPause() {//停止扫描
-		super.onPause();
-		mDevListAdapter.scan_jdy_ble( false );
-	}
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case 0:
+                break;
+
+        }
+    }
+
+
+    @Override
+    protected void onResume() {//打开APP时扫描设备
+        super.onResume();
+        mDevListAdapter.scan_jdy_ble(true);
+    }
+
+    @Override
+    protected void onPause() {//停止扫描
+        super.onPause();
+        mDevListAdapter.scan_jdy_ble(false);
+    }
 
 }

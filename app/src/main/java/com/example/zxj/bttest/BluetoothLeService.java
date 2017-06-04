@@ -1,13 +1,10 @@
 package com.example.zxj.bttest;
 
-/**
- * Created by ZXJ on 2017/5/31.
- */
-
 //
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by Fernflower decompiler)
 //
+
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -21,6 +18,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -31,7 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-
 
 public class BluetoothLeService extends Service {
     private static final String TAG = BluetoothLeService.class.getSimpleName();
@@ -60,20 +57,24 @@ public class BluetoothLeService extends Service {
     public static String Characteristic_uuid_FUNCTION;
     byte[] WriteBytes = new byte[200];
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+        @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
             if(newState == 2) {
                 intentAction = "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
-             BluetoothLeService.this.mConnectionState = 2;
+                BluetoothLeService.this.mConnectionState = 2;
                 BluetoothLeService.this.broadcastUpdate(intentAction);
+                Log.i(BluetoothLeService.TAG, "Connected to GATT server.");
+                Log.i(BluetoothLeService.TAG, "Attempting to start service discovery:" + BluetoothLeService.this.mBluetoothGatt.discoverServices());
             } else if(newState == 0) {
                 intentAction = "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
-               BluetoothLeService.this.mConnectionState = 0;
-               BluetoothLeService.this.broadcastUpdate(intentAction);
+                BluetoothLeService.this.mConnectionState = 0;
+                Log.i(BluetoothLeService.TAG, "Disconnected from GATT server.");
+                BluetoothLeService.this.broadcastUpdate(intentAction);
             }
 
         }
-
+        @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if(status == 0) {
                 BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED");
@@ -82,33 +83,33 @@ public class BluetoothLeService extends Service {
             }
 
         }
-
+        @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            Log.i("data","onCharacteristicRead----"+String.valueOf(characteristic.getValue()));
             if(status == 0) {
                 if(UUID.fromString(BluetoothLeService.Characteristic_uuid_TX).equals(characteristic.getUuid())) {
-                   BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE", characteristic);
+                    BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE", characteristic);
                 } else if(UUID.fromString(BluetoothLeService.Characteristic_uuid_FUNCTION).equals(characteristic.getUuid())) {
-                   BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE1", characteristic);
+                    BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE1", characteristic);
                 }
             }
 
         }
-
+        @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            if(UUID.fromString(BluetoothLeService.Characteristic_uuid_TX).equals(characteristic.getUuid())) {
-                BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE", characteristic);
-            } else if(UUID.fromString(BluetoothLeService.Characteristic_uuid_FUNCTION).equals(characteristic.getUuid())) {
-               BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE1", characteristic);
-            }
 
-        }
+            Log.i("data","onCharacteristicChanged----"+characteristic.getValue().toString());
 
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if(UUID.fromString(BluetoothLeService.Characteristic_uuid_TX).equals(characteristic.getUuid())) {
                 BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE", characteristic);
             } else if(UUID.fromString(BluetoothLeService.Characteristic_uuid_FUNCTION).equals(characteristic.getUuid())) {
                 BluetoothLeService.this.broadcastUpdate("com.example.bluetooth.le.ACTION_DATA_AVAILABLE1", characteristic);
             }
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            Log.i("data","onCharacteristicWrite----"+characteristic.getValue().toString());
         }
     };
     private final IBinder mBinder = new BluetoothLeService.LocalBinder();
@@ -361,7 +362,7 @@ public class BluetoothLeService extends Service {
 
     public void set_mem_data(String key, String values) {
         SharedPreferences mySharedPreferences = this.getSharedPreferences("jdy-ble", 0);
-        SharedPreferences.Editor editor = mySharedPreferences.edit();
+        Editor editor = mySharedPreferences.edit();
         editor.putString(key, values);
         editor.commit();
     }
