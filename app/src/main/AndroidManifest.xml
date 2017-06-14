@@ -49,9 +49,16 @@
         <activity
             android:name=".jdy_Activity"
             android:screenOrientation="portrait" />
-        <service android:name=".BluetoothLeService" android:enabled="true"/>
+
+        <service
+            android:name=".BluetoothLeService"
+            android:enabled="true" />
+
         <activity
             android:name=".DeviceScanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".LoginActivity"
             android:screenOrientation="portrait" />
 
     </application>

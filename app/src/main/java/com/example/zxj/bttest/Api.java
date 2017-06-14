@@ -9,6 +9,7 @@ public class Api {
      * 主机地址
      */
     public static final String ONLINE = "http://api.jsh88.net/Block/Json/";
+    public static final String ADMIN = "http://api.jsh88.net/Admin/Json/";
 
 
     /**
@@ -62,5 +63,19 @@ public class Api {
      */
     public static final String LockReveice() {
         return ONLINE + "LockReveice";
+    }
+    /**
+     *管理员登陆
+     * @return
+     */
+    public static final String Login() {
+        return ADMIN + "Login";
+    }
+    /**
+     *管理员登出
+     * @return
+     */
+    public static final String LogOut() {
+        return ADMIN + "LogOut";
     }
 }

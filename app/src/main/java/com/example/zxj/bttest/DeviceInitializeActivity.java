@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -314,13 +315,13 @@ public class DeviceInitializeActivity extends FatherActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+//        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mGattUpdateReceiver);
+
     }
 
     @Override
@@ -328,7 +329,7 @@ public class DeviceInitializeActivity extends FatherActivity {
         super.onDestroy();
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
-
+        unregisterReceiver(mGattUpdateReceiver);
     }
 
     private void updateConnectionState(final int resourceId) {
@@ -342,7 +343,6 @@ public class DeviceInitializeActivity extends FatherActivity {
 
     String da = "";
     int len_g = 0;
-    private long openTime=0;
     private void displayData(byte[] data1) //接收FFE1串口透传数据通道数据
     {
 
@@ -352,7 +352,7 @@ public class DeviceInitializeActivity extends FatherActivity {
 
             Log.d("dataData", res.toString());
 
-           if(sbValues.length()>=88||(System.currentTimeMillis()-openTime)<20000)return;
+           if(sbValues.length()>=88)return;
 
             sbValues.append(res);
 
@@ -363,18 +363,7 @@ public class DeviceInitializeActivity extends FatherActivity {
             mDataField.setText("" + len_g);
 
             if(sbValues.length()==88){
-                if(isInit){
-                    WWToast.showShort("设备初始化成功");
-                    sendInitData(sbValues.toString(),taskId,mDeviceAddress);
-                    isInit=false;
-                    openTime= System.currentTimeMillis();
-                    //清楚掉数据
-                    sbValues.delete(0, sbValues.length());
-                }else {
-                    WWToast.showShort("设备已关锁");
-                    closeDevice(sbValues.toString(),mDeviceAddress);
-
-                }
+                infoReceive(sbValues.toString(), mDeviceAddress);
             }
 
 
@@ -470,12 +459,13 @@ private String scanData;
      *
      * @param scanData
      */
-    private boolean isInit=false;
     private String taskId;
     private void sendInitQr(final String scanData) {
         showWaitDialog();
         JSONObject jsonObject = new JSONObject();
+        jsonObject.put("bluetooth", mDeviceAddress);
         jsonObject.put("scanData", scanData);
+        jsonObject.put("sessionId", SharedPreferenceUtils.getInstance().getSessionId());
         x.http().post(getPostJsonParams(jsonObject, Api.InitSend()), new WWXCallBack("InitSend") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
@@ -489,7 +479,6 @@ private String scanData;
                         }
                         iniStr=device.CommandText;
                         tx_count += mBluetoothLeService.txxx(iniStr, true);//发送字符串数据
-                        isInit=true;
                         txd_txt.setText(iniStr);
                         tx.setText("发送数据：" + tx_count);
                         //mBluetoothLeService.txxx( tx_string,false );//发送HEX数据
@@ -509,46 +498,47 @@ private String scanData;
         });
     }
 
-    /**
-     * 发送初始化数据
-     *
-     * @param scanData
-     * @param taskId
-     * @param address
-     */
-    private void sendInitData(String scanData, String taskId, String address) {
-        showWaitDialog();
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("receiveData", scanData);
-        jsonObject.put("taskId", taskId);
-        jsonObject.put("bluetooth", address);
-        x.http().post(getPostJsonParams(jsonObject, Api.InitReveice()), new WWXCallBack("InitReveice") {
-            @Override
-            public void onAfterSuccessOk(JSONObject data) {
-                WWToast.showShort("发送初始化数据给后台成功");
-            }
-
-            @Override
-            public void onAfterFinished() {
-                dismissWaitDialog();
-            }
-        });
-    }
     /**
      * 关锁指令
      *
 
      */
-    private void closeDevice(String receiveData,String address) {
+    private void infoReceive(String receiveData,String address) {
         showWaitDialog();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("receiveData", receiveData);
         jsonObject.put("bluetooth", address);
+        jsonObject.put("sessionId", SharedPreferenceUtils.getInstance().getSessionId());
+        //发送完立马清除
+        if (sbValues != null && sbValues.length() > 0) {
+            sbValues.delete(0, sbValues.length());
+        }
         x.http().post(getPostJsonParams(jsonObject, Api.LockReveice()), new WWXCallBack("LockReveice") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
-                WWToast.showShort("关锁成功");
+                Device device = JSONObject.parseObject(data.getString("Data"), Device.class);
+                switch (device.CommandName) {
+                    case Device.INIT:
+                        mBluetoothLeService.txxx(device.CommandText, true);//发送字符串数据
+                        WWToast.showShort("发送初始化数据给后台成功");
+                        break;
+                    case Device.OPEN:
+
+                        initDefautHead("骑行中", false);
+                        WWToast.showShort("开始用车");
+
+                        break;
+                    case Device.CLOSE:
+                        mBluetoothLeService.txxx(device.CommandText, true);//发送字符串数据
+                        WWToast.showShort("关锁成功");
+
+                        break;
+                    case Device.UNKNOW:
+                        break;
+                    default:
+                        break;
+                }
             }
 
             @Override

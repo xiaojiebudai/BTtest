@@ -8,6 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSONObject;
+
+import org.xutils.x;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 
@@ -17,6 +21,10 @@ public class MainActivity extends FatherActivity {
     Button tvInit;
     @BindView(R.id.tv_open)
     Button tvOpen;
+    @BindView(R.id.tv_login)
+    Button tv_login;
+    @BindView(R.id.tv_loginout)
+    Button tv_loginout;
 
     @Override
     protected int getLayoutId() {
@@ -37,7 +45,7 @@ public class MainActivity extends FatherActivity {
     protected void doOperate() {
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter  mBluetoothAdapter = bluetoothManager.getAdapter();
+        BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
 
         // Checks if Bluetooth is supported on the device.
         if (mBluetoothAdapter == null) {
@@ -69,23 +77,65 @@ public class MainActivity extends FatherActivity {
         super.onDestroy();
     }
 
-    @OnClick({R.id.tv_init, R.id.tv_open})
+    @OnClick({R.id.tv_init, R.id.tv_open, R.id.tv_login, R.id.tv_loginout})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.tv_login:
+
+                startActivity(new Intent(this, LoginActivity.class));
+                break;
+            case R.id.tv_loginout:
+                if (MyApplication.isLogin()) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("sessionId", SharedPreferenceUtils.getInstance().getSessionId());
+                    showWaitDialog();
+                    x.http().post(
+                            ParamsUtils.getPostJsonParams(jsonObject, Api.LogOut()),
+                            new WWXCallBack("LogOut") {
+
+                                @Override
+                                public void onAfterSuccessOk(JSONObject data) {
+                                    SharedPreferenceUtils.getInstance().saveSessionId("");
+                                    WWToast.showShort("登出成功");
+                                }
+
+                                @Override
+                                public void onAfterSuccessError(JSONObject data) {
+                                    super.onAfterSuccessError(data);
+                                }
+
+                                @Override
+                                public void onAfterFinished() {
+                                    dismissWaitDialog();
+                                }
+                            });
+
+                } else {
+                    WWToast.showShort("还未登陆");
+                }
+
+                break;
             case R.id.tv_init:
+                if (MyApplication.isLogin()) {
+                    startActivity(new Intent(this, DeviceScanActivity.class));
+                } else {
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
 
-                startActivity(new Intent(this,DeviceScanActivity.class));
-                            break;
+                break;
             case R.id.tv_open:
-
-                Intent intent = new Intent();
-                intent.setClass(this, ScanActivity.class);
-                startActivityForResult(intent, 888);
-
+                if (MyApplication.isLogin()) {
+                    Intent intent = new Intent();
+                    intent.setClass(this, ScanActivity.class);
+                    startActivityForResult(intent, 888);
+                } else {
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
 
 
                 break;
         }
+
     }
 
     @Override
@@ -96,7 +146,7 @@ public class MainActivity extends FatherActivity {
                 //扫描结果 http://www.wangwangsh.cn/mobile/ysbike.html?d=00000000_0
                 String s = data.getStringExtra("codedContent");
 
-                startActivity(new Intent(this,OpenActivity.class).putExtra("Data",s));
+                startActivity(new Intent(this, OpenActivity.class).putExtra("Data", s));
             }
         }
     }

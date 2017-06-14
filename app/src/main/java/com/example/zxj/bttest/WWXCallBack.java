@@ -51,6 +51,19 @@ public abstract class WWXCallBack implements CommonCallback<String> {
 				onAfterSuccessOk(data);
 			} else {
 				onAfterSuccessError(data);
+				switch (data.getIntValue("ErrCode")) {// 错误码,处理不同业务
+					case 201:// session为空，以防万一（在需要使用session的时候就需要处理）
+						SharedPreferenceUtils.getInstance().clearLoginData();
+						WWToast.showShort("session为空,请返回首页登陆");
+						break;
+					case 202:// session过期
+						SharedPreferenceUtils.getInstance().clearLoginData();
+						WWToast.showShort("session过期,请返回首页登陆");
+						break;
+					default:
+							WWToast.showShort(data.getString("Message"));
+						break;
+				}
 			}
 		}
 	}

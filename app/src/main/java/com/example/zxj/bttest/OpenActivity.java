@@ -329,7 +329,7 @@ private  boolean isOpen=false;
 
     String da = "";
     int len_g = 0;
-    private long openTime=0;
+
     private void displayData(byte[] data1) //接收FFE1串口透传数据通道数据
     {
 
@@ -338,7 +338,7 @@ private  boolean isOpen=false;
             String res = new String(data1);
 
 
-            if (sbValues.length() >= 88||(System.currentTimeMillis()-openTime)<20000) return;
+            if (sbValues.length() >= 88) return;
 
             sbValues.append(res);
 
@@ -351,17 +351,7 @@ private  boolean isOpen=false;
             ZLog.showPost(res.toString());
             if (sbValues.length() == 88) {
 
-                if(isOpen){
-                    WWToast.showShort("设备已开锁");
-                    sendOpenData(sbValues.toString(),taskId);
-                    isOpen=false;
-                    openTime= System.currentTimeMillis();
-                    sbValues.delete(0, sbValues.length());
-                }else{
-
-                    WWToast.showShort("设备已关锁");
-                    closeDevice(sbValues.toString(),mDeviceAddress);
-                }
+                infoReceive(sbValues.toString(), mDeviceAddress);
 
 
             }
@@ -495,44 +485,46 @@ private  boolean isOpen=false;
     }
 
     /**
-     * 发送开锁数据
-     *
-     * @param scanData
-     * @param taskId
-     */
-    private void sendOpenData(String scanData, String taskId) {
-        showWaitDialog();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("receiveData", scanData);
-        jsonObject.put("taskId", taskId);
-        x.http().post(getPostJsonParams(jsonObject, Api.OpenReveice()), new WWXCallBack("OpenReveice") {
-            @Override
-            public void onAfterSuccessOk(JSONObject data) {
-                WWToast.showShort("发送开锁成功数据至后台");
-            }
-
-            @Override
-            public void onAfterFinished() {
-                dismissWaitDialog();
-            }
-        });
-
-    }
-
-    /**
      * 关锁指令
      *
 
      */
-    private void closeDevice(String receiveData,String address) {
+    private void infoReceive(String receiveData,String address) {
         showWaitDialog();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("receiveData", receiveData);
         jsonObject.put("bluetooth", address);
+        jsonObject.put("sessionId", SharedPreferenceUtils.getInstance().getSessionId());
+        //发送完立马清除
+        if (sbValues != null && sbValues.length() > 0) {
+            sbValues.delete(0, sbValues.length());
+        }
         x.http().post(getPostJsonParams(jsonObject, Api.LockReveice()), new WWXCallBack("LockReveice") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
-                WWToast.showShort("关锁成功");
+                Device device = JSONObject.parseObject(data.getString("Data"), Device.class);
+                switch (device.CommandName) {
+                    case Device.INIT:
+                        mBluetoothLeService.txxx(device.CommandText, true);//发送字符串数据
+                        WWToast.showShort("发送初始化数据给后台成功");
+                        break;
+                    case Device.OPEN:
+
+                        initDefautHead("骑行中", true);
+                        WWToast.showShort("开始用车");
+
+                        break;
+                    case Device.CLOSE:
+                        initDefautHead("已关锁", true);
+                        mBluetoothLeService.txxx(device.CommandText, true);//发送字符串数据
+                        WWToast.showShort("关锁成功");
+
+                        break;
+                    case Device.UNKNOW:
+                        break;
+                    default:
+                        break;
+                }
             }
 
             @Override

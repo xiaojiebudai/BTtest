@@ -11,7 +11,9 @@
     <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
 
     <string name="TXD">发送数据:</string>
-
+    <string name="please_input_username">请输入您的账号</string>
+    <string name="please_input_password">请输入您的密码</string>
+    <string name="login">登录</string>
 
 
 
