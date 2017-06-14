@@ -307,7 +307,7 @@ private  boolean isOpen=false;
     @Override
     protected void onPause() {
         super.onPause();
-//        unregisterReceiver(mGattUpdateReceiver);
+//
     }
 
     @Override
@@ -315,7 +315,7 @@ private  boolean isOpen=false;
         super.onDestroy();
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
-
+        unregisterReceiver(mGattUpdateReceiver);
     }
 
     private void updateConnectionState(final int resourceId) {
@@ -463,7 +463,7 @@ private  boolean isOpen=false;
                 taskId = data.getString("TaskId");
                 openStr=device.CommandText;
                 mDeviceAddress = device.Bluetooth;
-                mDeviceAddress = "A4:C1:38:77:12:46";
+//                mDeviceAddress = "A4:C1:38:77:12:46";
                 ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
                 txd_txt.setText(openStr);
                 Message message = new Message();
