@@ -76,6 +76,7 @@ public class LoginActivity extends FatherActivity {
                     @Override
                     public void onAfterSuccessOk(JSONObject data) {
                         SharedPreferenceUtils.getInstance().saveSessionId(data.getString("Data"));
+                        WWToast.showShort("登陆成功");
                         finish();
 
                     }

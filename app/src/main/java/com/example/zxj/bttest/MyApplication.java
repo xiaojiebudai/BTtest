@@ -21,6 +21,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        SharedPreferenceUtils.init(this);
         x.Ext.init(this);
         x.Ext.setDebug(true);
     }

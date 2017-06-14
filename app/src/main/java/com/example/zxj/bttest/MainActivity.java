@@ -110,27 +110,28 @@ public class MainActivity extends FatherActivity {
                                 }
                             });
 
-                } else {
+                }else{
                     WWToast.showShort("还未登陆");
                 }
 
                 break;
             case R.id.tv_init:
                 if (MyApplication.isLogin()) {
-                    startActivity(new Intent(this, DeviceScanActivity.class));
-                } else {
+
+                }else{
                     startActivity(new Intent(this, LoginActivity.class));
                 }
-
+                startActivity(new Intent(this, DeviceScanActivity.class));
                 break;
             case R.id.tv_open:
                 if (MyApplication.isLogin()) {
-                    Intent intent = new Intent();
-                    intent.setClass(this, ScanActivity.class);
-                    startActivityForResult(intent, 888);
-                } else {
+
+                }else{
                     startActivity(new Intent(this, LoginActivity.class));
                 }
+                Intent intent = new Intent();
+                intent.setClass(this, ScanActivity.class);
+                startActivityForResult(intent, 888);
 
 
                 break;
