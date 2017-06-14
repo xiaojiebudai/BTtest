@@ -1,8 +1,4 @@
 package com.example.zxj.bttest;
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -30,15 +26,6 @@ public class DeviceListAdapter extends Activity {
     BluetoothAdapter apter;
     Context context;
     int scan_int = 0;
-    int ip = 0;
-    public String ibeacon_UUID = "";
-    public String ibeacon_MAJOR = "";
-    public String ibeacon_MINOR = "";
-    public byte sensor_temp;
-    public byte sensor_humid;
-    public byte sensor_batt;
-    public byte[] sensor_VID;
-    public JDY_type DEV_TYPE;
     Timer timer = new Timer();
     boolean stop_timer = true;
     byte dev_VID = -120;
@@ -330,19 +317,6 @@ public class DeviceListAdapter extends Activity {
             }
 
             return value;
-        }
-
-        private String bytesToHexString(byte[] src) {
-            StringBuilder stringBuilder = new StringBuilder(src.length);
-            byte[] var6 = src;
-            int var5 = src.length;
-
-            for(int var4 = 0; var4 < var5; ++var4) {
-                byte byteChar = var6[var4];
-                stringBuilder.append(String.format("%02X", new Object[]{Byte.valueOf(byteChar)}));
-            }
-
-            return stringBuilder.toString();
         }
 
         private String bytesToHexString1(byte[] src) {
