@@ -23,18 +23,6 @@ public class Api {
     }
 
     /**
-     * 初始化数据反馈
-     * taskId
-     * receiveData
-     * bluetooth
-     *
-     * @return
-     */
-    public static final String InitReveice() {
-        return ADMIN + "InitReveice";
-    }
-
-    /**
      * 取开锁指令
      * scanData
      *
@@ -42,17 +30,6 @@ public class Api {
      */
     public static final String OpenSend() {
         return ADMIN + "OpenSend";
-    }
-
-    /**
-     * 开锁反馈
-     * scanData
-     * taskId
-     *
-     * @return
-     */
-    public static final String OpenReveice() {
-        return ADMIN + "OpenReveice";
     }
 
     /**
