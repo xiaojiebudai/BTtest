@@ -19,20 +19,9 @@ public class Api {
      * @return
      */
     public static final String InitSend() {
-        return ONLINE + "InitSend";
+        return ADMIN + "InitSend";
     }
 
-    /**
-     * 初始化数据反馈
-     * taskId
-     * receiveData
-     * bluetooth
-     *
-     * @return
-     */
-    public static final String InitReveice() {
-        return ONLINE + "InitReveice";
-    }
 
     /**
      * 取开锁指令
@@ -41,19 +30,9 @@ public class Api {
      * @return
      */
     public static final String OpenSend() {
-        return ONLINE + "OpenSend";
+        return ADMIN + "OpenSend";
     }
 
-    /**
-     * 开锁反馈
-     * scanData
-     * taskId
-     *
-     * @return
-     */
-    public static final String OpenReveice() {
-        return ONLINE + "OpenReveice";
-    }
 
     /**
      * 关锁接受到的信息
@@ -62,7 +41,7 @@ public class Api {
      * @return
      */
     public static final String LockReveice() {
-        return ONLINE + "LockReveice";
+        return ADMIN + "LockReveice";
     }
     /**
      *管理员登陆
