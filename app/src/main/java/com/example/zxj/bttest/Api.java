@@ -19,7 +19,7 @@ public class Api {
      * @return
      */
     public static final String InitSend() {
-        return ONLINE + "InitSend";
+        return ADMIN + "InitSend";
     }
 
     /**
@@ -31,7 +31,7 @@ public class Api {
      * @return
      */
     public static final String InitReveice() {
-        return ONLINE + "InitReveice";
+        return ADMIN + "InitReveice";
     }
 
     /**
@@ -41,7 +41,7 @@ public class Api {
      * @return
      */
     public static final String OpenSend() {
-        return ONLINE + "OpenSend";
+        return ADMIN + "OpenSend";
     }
 
     /**
@@ -52,7 +52,7 @@ public class Api {
      * @return
      */
     public static final String OpenReveice() {
-        return ONLINE + "OpenReveice";
+        return ADMIN + "OpenReveice";
     }
 
     /**
@@ -62,7 +62,7 @@ public class Api {
      * @return
      */
     public static final String LockReveice() {
-        return ONLINE + "LockReveice";
+        return ADMIN + "LockReveice";
     }
     /**
      *管理员登陆

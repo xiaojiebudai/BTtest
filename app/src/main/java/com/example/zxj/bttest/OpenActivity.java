@@ -445,6 +445,7 @@ private  boolean isOpen=false;
         showWaitDialog();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("scanData", scanData);
+        jsonObject.put("sessionId", SharedPreferenceUtils.getInstance().getSessionId());
         x.http().post(getPostJsonParams(jsonObject, Api.OpenSend()), new WWXCallBack("OpenSend") {
             @Override
             public void onAfterSuccessOk(JSONObject data) {
@@ -506,7 +507,7 @@ private  boolean isOpen=false;
                 switch (device.CommandName) {
                     case Device.INIT:
                         mBluetoothLeService.txxx(device.CommandText, true);//发送字符串数据
-                        WWToast.showShort("发送初始化数据给后台成功");
+                        WWToast.showShort("初始化成功");
                         break;
                     case Device.OPEN:
 

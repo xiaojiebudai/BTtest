@@ -510,6 +510,7 @@ private String scanData;
         jsonObject.put("receiveData", receiveData);
         jsonObject.put("bluetooth", address);
         jsonObject.put("sessionId", SharedPreferenceUtils.getInstance().getSessionId());
+        ZLog.showPost(receiveData);
         //发送完立马清除
         if (sbValues != null && sbValues.length() > 0) {
             sbValues.delete(0, sbValues.length());
