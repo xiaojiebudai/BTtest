@@ -250,8 +250,6 @@ private  boolean isOpen=false;
             }
             super.handleMessage(msg);
         }
-
-        ;
     };
 
 
