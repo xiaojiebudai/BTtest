@@ -381,7 +381,6 @@ private  boolean isOpen=false;
                 WriteBytes[1] = (byte) 0xf6;
                 mBluetoothLeService.function_data(WriteBytes);// 发送读取所有IO状态
 
-
                 updateConnectionState(R.string.connected);
             } else {
                 //Toast.makeText(this, "Deleted Successfully!", Toast.LENGTH_LONG).show();
@@ -396,7 +395,6 @@ private  boolean isOpen=false;
 
                 mBluetoothLeService.Delay_ms(100);
                 mBluetoothLeService.enable_JDY_ble(0);
-
                 updateConnectionState(R.string.connected);
             } else {
                 //Toast.makeText(this, "Deleted Successfully!", Toast.LENGTH_LONG).show();
